@@ -1,7 +1,7 @@
 
 package umag.ednl;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public interface Grafo<V, A> {
     void insVertice(V x);
@@ -12,15 +12,14 @@ public interface Grafo<V, A> {
 
     A obtArista(int vi, int vf);
 
-
     void elimArista(int vi, int vf);
 
     int orden(); // # de verticies en el grafo
 
     String toString();
 
-    List<V> sucesores(int pos); // Vertices que tienen una arista desde el vertice en la posición pos hacia
-                                // otros vertices
+    ArrayList<V> sucesores(int pos); // Vertices que tienen una arista desde el vertice en la posición pos hacia
+    // otros vertices
 
     void modificarVertice(int pos, V x);
 

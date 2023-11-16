@@ -1,13 +1,11 @@
 package umag.ednl;
 
-import com.mxgraph.layout.mxFastOrganicLayout;
+import com.mxgraph.layout.mxCircleLayout;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxGraph;
 import java.util.List;
 import javax.swing.*;
-
-
 
 public class GrafoVisualizer {
     private Grafo<Barrio, Integer> grafo;
@@ -22,7 +20,11 @@ public class GrafoVisualizer {
         mxGraph graph = new mxGraph();
         Object parent = graph.getDefaultParent();
 
+        // Set the background color of the graph
+        graph.setCellStyle("fillColor=#FFFFFF");
+
         graph.getModel().beginUpdate();
+        String imagePath = System.getProperty("user.dir") + "/Ambulancia.png";
 
         try {
             // Crear los vértices del grafo
@@ -30,7 +32,14 @@ public class GrafoVisualizer {
 
             for (int i = 0; i < grafo.orden(); i++) {
                 Barrio barrio = grafo.obtVertice(i);
-                vertices[i] = graph.insertVertex(parent, "Accidentes: sdsadd ", barrio.getNombre() +"\n Accidentes :"+barrio.getAccidentes(), 20, 60, 80, 90, mxConstants.STYLE_SHAPE + "=" + mxConstants.SHAPE_HEXAGON + ";fillColor=#f988ff;strokeColor=#FF0000;rounded=true");
+                vertices[i] = graph.insertVertex(parent, "Accidentes: sdsadd ",
+                        barrio.getNombre() + "\n Accidentes :" + barrio.getAccidentes() + "\nAmbulancias ID:"
+                                + barrio.totalAmbulancias(),
+                        20, 60, 100, 100,
+                        mxConstants.STYLE_SHAPE + "=" + mxConstants.SHAPE_DOUBLE_ELLIPSE
+                                + ";fillColor=#000000;strokeColor=#FF0000;rounded=false" + ";" + mxConstants.STYLE_IMAGE
+                                + "=" + imagePath + ";" + mxConstants.STYLE_FONTCOLOR + "="
+                                + "#FFFFFF");
             }
 
             // Crear las aristas del grafo
@@ -40,21 +49,21 @@ public class GrafoVisualizer {
                     Barrio sucesor = sucesores.get(j);
                     int vf = posicion(grafo, sucesor.getNombre());
 
-                    // Barrio barrioInicio = grafo.obtVertice(i);
-                    // Barrio barrioFin = grafo.obtVertice(vf);
-                    //obtener el costo de la arista
+                    // obtener el costo de la arista
                     int costo = grafo.obtArista(i, vf);
                     String costoString = String.valueOf(costo);
-                    
-                    graph.insertEdge(parent, null,costoString , vertices[i], vertices[vf], mxConstants.STYLE_EDGE + "=" + mxConstants.EDGESTYLE_ELBOW + ";strokeColor=#0c181c;fillColor=#000000;rounded=true");
+
+                    graph.insertEdge(parent, null, "\n \n" + costoString, vertices[i], vertices[vf],
+                            mxConstants.STYLE_EDGE + "=" + mxConstants.EDGESTYLE_LOOP
+                                    + ";strokeColor=#0c181c;fillColor=#000000;rounded=true"
+                                    + ";endArrow=classic;endSize=20");
                 }
             }
 
             // Aplicar un algoritmo de diseño para organizar los vértices
-            mxFastOrganicLayout layout = new mxFastOrganicLayout(graph);
-
+            // mxFastOrganicLayout layout = new mxFastOrganicLayout(graph);
+            mxCircleLayout layout = new mxCircleLayout(graph);
             // Configurar opciones de diseño (opcional)
-            layout.setForceConstant(200);
             layout.setDisableEdgeStyle(true);
             layout.execute(parent);
 
@@ -64,7 +73,6 @@ public class GrafoVisualizer {
 
         // Crear el componente de gráficos de JGraphX
         mxGraphComponent graphComponent = new mxGraphComponent(graph);
-
         // Crear el marco para mostrar el grafo
         if (frame == null) {
             // Crear el marco para mostrar el grafo solo si no existe
@@ -81,6 +89,7 @@ public class GrafoVisualizer {
             frame.revalidate();
             frame.repaint();
         }
+
     }
 
     public void cerrarVentana() {
@@ -103,4 +112,5 @@ public class GrafoVisualizer {
             frame.repaint(); // Actualiza la ventana
         }
     }
+
 }

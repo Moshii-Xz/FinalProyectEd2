@@ -7,6 +7,8 @@ public class Barrio {
     private String nombre;
     private int accidentes;
     private int tiempo;
+    private ArrayList<Ambulancia> ambulancias = new ArrayList<>();
+
     public int getTiempo() {
         return tiempo;
     }
@@ -15,8 +17,6 @@ public class Barrio {
         this.tiempo = tiempo;
     }
 
-    private ArrayList<Ambulancia> ambulancias = new ArrayList<>();
-
     @Override
     public String toString() {
         return "Barrio{" + "nombre=" + nombre + ", accidentes=" + accidentes + ", ambulancias=" + ambulancias + '}';
@@ -24,6 +24,10 @@ public class Barrio {
 
     public Barrio(String nombre) {
         this.nombre = nombre;
+    }
+
+    public Barrio() {
+
     }
 
     public String getNombre() {
@@ -56,6 +60,15 @@ public class Barrio {
      */
     public ArrayList<Ambulancia> getAmbulancias() {
         return ambulancias;
+    }
+
+    public String totalAmbulancias() {
+        // ambulancias por id
+        String list = "";
+        for (Ambulancia ambulancia : ambulancias) {
+            list += ambulancia.getId() + " ";
+        }
+        return list;
     }
 
     /**

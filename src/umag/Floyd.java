@@ -15,7 +15,11 @@ public class Floyd {
         p = new int[n][n];
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                d[i][j] = grafo.obtArista(i, j);
+                if (grafo.obtArista(i, j) != null) {
+                    d[i][j] = grafo.obtArista(i, j);
+                } else {
+                    d[i][j] = 99999999;
+                }
                 p[i][j] = -1;
             }
         }
@@ -64,5 +68,5 @@ public class Floyd {
             }
         }
     }
-
+    
 }

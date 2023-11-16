@@ -16,6 +16,14 @@ public class Ambulancia {
         this.ocupado = ocupado;
     }
 
+    public Ambulancia(int id){
+        this.id = id;
+    }
+
+    public Ambulancia() {
+
+    }
+
     public void setId(int id) {
         this.id = id;
     }

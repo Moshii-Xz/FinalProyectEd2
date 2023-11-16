@@ -2,7 +2,6 @@
 package umag.ednl;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class GrafoDinamico<V, A> implements Grafo<V, A> {
     ArrayList<Vertice<V, A>> vertices = new ArrayList<>();
@@ -60,7 +59,7 @@ public class GrafoDinamico<V, A> implements Grafo<V, A> {
     }
 
     @Override
-    public List<V> sucesores(int pos) {
+    public ArrayList<V> sucesores(int pos) {
         ArrayList<V> suces = new ArrayList<>();
         Vertice<V, A> vert = vertices.get(pos);
         ArrayList<Arista<V, A>> aristas = vert.getAristas();
