@@ -4,6 +4,7 @@ import com.mxgraph.layout.mxCircleLayout;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxGraph;
+//import com.mxgraph.model.mxGeometry;
 import java.util.List;
 import javax.swing.*;
 
@@ -24,8 +25,6 @@ public class GrafoVisualizer {
         graph.setCellStyle("fillColor=#FFFFFF");
 
         graph.getModel().beginUpdate();
-        String imagePath = System.getProperty("user.dir") + "/Ambulancia.png";
-
         try {
             // Crear los vértices del grafo
             Object[] vertices = new Object[grafo.orden()];
@@ -38,7 +37,7 @@ public class GrafoVisualizer {
                         20, 60, 100, 100,
                         mxConstants.STYLE_SHAPE + "=" + mxConstants.SHAPE_DOUBLE_ELLIPSE
                                 + ";fillColor=#000000;strokeColor=#FF0000;rounded=false" + ";" + mxConstants.STYLE_IMAGE
-                                + "=" + imagePath + ";" + mxConstants.STYLE_FONTCOLOR + "="
+                                + "=" + "/src/umag/Imagen/Ambulancia.png" + ";" + mxConstants.STYLE_FONTCOLOR + "="
                                 + "#FFFFFF");
             }
 

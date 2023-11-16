@@ -2,15 +2,12 @@ package test;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Scanner;
-
 import umag.Floyd;
 import umag.ednl.Ambulancia;
 import umag.ednl.Barrio;
 import umag.ednl.Grafo;
 import umag.ednl.GrafoDinamico;
 import umag.ednl.GrafoVisualizer;
-
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -18,12 +15,11 @@ import javax.swing.JOptionPane;
 
 public class Prueba {
     private static ArrayList<String> listaInformes = new ArrayList<>();
-    // private static ArrayList<String> incidentes = new ArrayList<>();
+    private static ArrayList<String> incidentes = new ArrayList<>();
     private static GrafoVisualizer visualizer;
 
     public static void main(String[] args) {
         Grafo<Barrio, Integer> grafiti = crearGrafo();
-
         visualizer = new GrafoVisualizer(grafiti);
         insertarAmbulancias(grafiti);
 
@@ -115,7 +111,7 @@ public class Prueba {
         TimerTask tarea = new TimerTask() {
             public void run() {
                 visualizer.visualizarGrafo();
-                System.out.println("¡Se actualizo el grafo!");
+                // System.out.println("¡Se actualizo el grafo!");
             };
         };
 
@@ -145,12 +141,14 @@ public class Prueba {
         int costo = floyd.d[origen][destino];
         int pos = posicion(grafo, barrioAmb.getNombre());
         Barrio barrioAmbulancia = grafo.obtVertice(pos);
+        Ambulancia ambulancia = barrioAmbulancia.getAmbulancias().removeFirst();
+        barrio.agregarAmbulancia(ambulancia);
+        // Barrio barrioDestino = grafo.obtVertice(destino);
         barrioAmbulancia.setAccidentes(barrioAmbulancia.getAccidentes() - 1);
         barrioAmbulancia.setTiempo(barrioAmbulancia.getTiempo() + costo);
         barrioAmbulancia.setAccidentes(barrioAmbulancia.getAccidentes() + 1);
-
         if (costo != 99999999) {
-            JOptionPane.showMessageDialog(null, "La ambulancia " + barrioAmbulancia.getAmbulancias().get(0).getId()
+            JOptionPane.showMessageDialog(null, "La ambulancia " + ambulancia.toString()
                     + " se movio desde " + barrioAmbulancia.getNombre() + " hasta " + barrio.getNombre() + " en "
                     + costo
                     + " minutos");
@@ -181,23 +179,31 @@ public class Prueba {
 
         if (pos != -1) {
             Barrio barrioIncidente = grafo.obtVertice(pos);
+            boolean aislado = grafo.sucesores(pos).isEmpty();
             if (barrioIncidente.getAccidentes() > 0) {
                 Barrio barrioAmbulancia = obtenerBarrioConAmbulancia(grafo);
 
-                if (barrioAmbulancia != null) {
+                if (!barrioIncidente.getAmbulancias().isEmpty()) {
+                    barrioIncidente.setAccidentes(barrioIncidente.getAccidentes() - 1);
+                    JOptionPane.showMessageDialog(null,
+                            "Incidente en el barrio " + barrioIncidente.getNombre() + "ha sido solucionado");
+                } else if (barrioAmbulancia != null) {
                     int costo = costoMinimo(grafo, barrioAmbulancia, barrioIncidente);
 
                     // Mover la ambulancia
-                    moverAmbulancia(grafo, barrioAmbulancia, barrioIncidente);
+                    if (!aislado) {
+                        moverAmbulancia(grafo, barrioAmbulancia, barrioIncidente);
+                    }
 
                     // Actualizar la vista del grafo
                     GrafoVisualizer visualizer = new GrafoVisualizer(grafo);
                     visualizer.actualizarVistaGrafo();
-                    if (costo != 99999999) {
+                    if (costo != 99999999 && !aislado) {
                         JOptionPane.showMessageDialog(null, "Incidente en el barrio " +
                                 barrioIncidente.getNombre() +
                                 " resuelto. La ambulancia se movió desde " + barrioAmbulancia.getNombre() +
                                 " hasta " + barrioIncidente.getNombre() + " en " + costo + " minutos.");
+                        barrioIncidente.setAccidentes(barrioIncidente.getAccidentes() - 1);
                     } else {
                         JOptionPane.showMessageDialog(null,
                                 "No hay ruta disponible para llegar al barrio " + barrioIncidente.getNombre());
@@ -315,32 +321,33 @@ public class Prueba {
         return nombreIncidentes.get((int) (Math.random() * nombreIncidentes.size()));
     }
 
+    public static String historicoDeInformes() {
+        String data = "";
+        for (int i = 0; i < listaInformes.size(); i++) {
+            data += listaInformes.get(i) + "\n";
+        }
+        return data;
+    }
+
     public static void registrarIncidente(Barrio barrio, String siniestro) {
-        String infoAmbulancias = "";
-        String informe = "Barrio: " + barrio.getNombre() + "\n"
-                + "Siniestro: " + siniestro + "\n"
-                + "Ambulancia enviada: " + infoAmbulancias + "\n";
-        ArrayList<Ambulancia> ambulancias = barrio.getAmbulancias();
-        if (!ambulancias.isEmpty()) {
-            for (Ambulancia amb : ambulancias) {
-                infoAmbulancias += amb.toString() + "\n";
-            }
-        }
-        if (infoAmbulancias.equals("")) {
-            infoAmbulancias += "Ninguna\n";
-        }
+
+        String informe = "-----------------------------\nBarrio: " + barrio.getNombre() + "\n"
+                + "Siniestro: " + siniestro + "\n";
         listaInformes.add(informe);
     }
 
-    public static String informes(Grafo<Barrio, Integer> g, int op) {
+    public static String informes(Grafo<Barrio, Integer> g, int op, int id) {
         String informe = "";
         ArrayList<Ambulancia> ambulancias = new ArrayList<>();
         ArrayList<Barrio> barrios = new ArrayList<>();
-        int id;
         for (int i = 0; i < g.orden(); i++) {
             Barrio barrio = g.obtVertice(i);
-            ambulancias = barrio.getAmbulancias();
+            barrios.add(barrio);
+            for (Ambulancia amb : barrio.getAmbulancias()) {
+                ambulancias.add(amb);
+            }
         }
+
         switch (op) {// Ambulancia con mas trabajo
             case 1: {
                 int loadAverage = 0;
@@ -369,16 +376,16 @@ public class Prueba {
             }
 
             case 3: {// informacion sobre ambulancia
-                Scanner scan = new Scanner(System.in);
-                System.out.println("Por favor ingrese el id de la ambulancia");
-                while (!scan.hasNextInt()) {
-                    System.out.println("Por favor, ingrese un valor entero.");
-                    scan.next();
-                }
-                id = scan.nextInt();
                 for (int i = 0; i < ambulancias.size(); i++) {
                     if (ambulancias.get(i).getId() == id) {
                         informe += ambulancias.get(i).toString();
+                        for (Barrio barrio : barrios) {
+                            if (barrio.getAmbulancias().contains(ambulancias.get(i))) {
+                                informe += "\nUbicacion: " + barrio.getNombre();
+                                break;
+                            }
+                        }
+
                         return informe;
                     }
                 }
@@ -420,6 +427,27 @@ public class Prueba {
         return DFS(grafo, origen);
     }
 
+    // Funcion para mostrar la matriz de costos del grafo y el nombre de los barrios
+    public static String matrizCostos(Grafo<Barrio, Integer> grafo) {
+        String matriz = "       ";
+        for (int i = 0; i < grafo.orden(); i++) {
+            matriz += grafo.obtVertice(i).getPrimeraLetra() + "-<>-";
+        }
+        matriz += "\n";
+        for (int i = 0; i < grafo.orden(); i++) {
+            matriz += grafo.obtVertice(i).getPrimeraLetra() + "->";
+            for (int j = 0; j < grafo.orden(); j++) {
+                if (grafo.obtArista(i, j) == null) {
+                    matriz += "--∞--";
+                    continue;
+                }
+                matriz += "--" + grafo.obtArista(i, j) + "--";
+            }
+            matriz += "\n";
+        }
+        return matriz;
+    }
+
     private static void menu(Grafo<Barrio, Integer> grafo) {
         String men = "—————————————————————————\n"
                 + " MENU DE OPCIONES\n"
@@ -438,7 +466,9 @@ public class Prueba {
             int op = Integer.parseInt(JOptionPane.showInputDialog(men));
             switch (op) {
                 case 1:
-
+                    JOptionPane.showMessageDialog(null, "Matriz de costos:\n "
+                            + matrizCostos(grafo));
+                    break;
                 case 2:
                     String nombre = JOptionPane.showInputDialog("Ingrese el nombre del barrio");
                     JOptionPane.showMessageDialog(null, datosBarrio(grafo, nombre));
@@ -467,26 +497,41 @@ public class Prueba {
                             + cadena.toString());
                     break;
                 case 7:
-                    String nom = JOptionPane.showInputDialog("");
+                    JOptionPane.showMessageDialog(null, "Informe de incidentes:\n "
+                            + historicoDeInformes());
                     break;
                 case 8:
-                    JOptionPane.showInputDialog("—————————————————————————\n"
-                            + " MENU DE OPCIONES\n"
+                    String mensaje = ("—————————————————————————\n"
+                            + " MENU DE INFORMES\n"
                             + "—————————————————————————\n"
                             + "     1. Ambulancia con mas trabajo\n"
                             + "     2. barrio con mas accidentes\n"
                             + "     3. informacion sobre ambulancia\n"
                             + "—————————————————————————");
-                    String opi = JOptionPane.showInputDialog("Ingrese la opcion");
-                    int opa = Integer.parseInt(opi);
-                    JOptionPane.showMessageDialog(null, "Reporte de informe:\n "
-                            + informes(grafo, opa));
+                    int opa = Integer.parseInt(JOptionPane.showInputDialog(mensaje));
+                    switch (opa) {
+                        case 1:
+                            JOptionPane.showMessageDialog(null, "Ambulancia con mas trabajo:\n "
+                                    + informes(grafo, opa, 0));
+                            break;
+                        case 2:
+                            JOptionPane.showMessageDialog(null, "Barrio con mas accidentes:\n "
+                                    + informes(grafo, opa, 0));
+                            break;
+                        case 3:
+                            String idA = JOptionPane.showInputDialog("Ingrese el ID de la ambulancia");
+                            int idAm = Integer.parseInt(idA);
+                            JOptionPane.showMessageDialog(null, "Informacion sobre ambulancia:\n "
+                                    + informes(grafo, opa, idAm));
+                            break;
+                        default:
+                            JOptionPane.showMessageDialog(null, "\n");
+                            break;
+                    }
                     break;
-
                 case 0:
                     System.exit(0);
                     break;
-
                 default:
                     JOptionPane.showMessageDialog(null, "\n");
 

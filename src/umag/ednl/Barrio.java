@@ -34,6 +34,10 @@ public class Barrio {
         return nombre;
     }
 
+    public String getPrimeraLetra() {
+        return nombre.substring(0, 1);
+    }
+
     /**
      * @param nombre the nombre to set
      */
